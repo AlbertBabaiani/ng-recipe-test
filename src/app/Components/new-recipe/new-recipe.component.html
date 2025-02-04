@@ -1,0 +1,147 @@
+<a routerLink="../" class="btn btn-primary">Back</a>
+
+<h1 class="text-center my-4">
+  {{ isEditing() ? "Update the " : "Add new " }} recipe
+</h1>
+
+<form [formGroup]="form" (ngSubmit)="addNewRecipe()">
+  <div class="form-floating mb-3">
+    <input
+      type="text"
+      class="form-control"
+      id="title"
+      placeholder="Spaghetti Carbonara"
+      formControlName="title"
+    />
+    <label for="title">Title</label>
+
+    @if(title?.hasError('required') && (title?.touched || title?.dirty)){
+    <span class="text-danger">* Title is required.</span>
+    } @else if(title?.hasError('minlength') && (title?.touched ||
+    title?.dirty)){
+    <span class="text-danger">* Enter at least 3 characters.</span>
+    }
+  </div>
+
+  <div class="form-floating mb-3">
+    <textarea
+      class="form-control"
+      placeholder="Classic Italian pasta dish."
+      id="description"
+      formControlName="description"
+    ></textarea>
+    <label for="description">Description</label>
+
+    @if(description?.hasError('required') && (description?.touched ||
+    description?.dirty)){
+    <span class="text-danger">* Description is required.</span>
+    } @else if(description?.hasError('minlength') && (description?.touched ||
+    description?.dirty)){
+    <span class="text-danger">* Enter at least 3 characters.</span>
+    }
+  </div>
+
+  <div class="form-floating mb-3">
+    <textarea
+      class="form-control"
+      placeholder="Boil pasta. Fry bacon. Mix eggs & cheese. Combine everything."
+      id="instructions"
+      formControlName="instructions"
+    ></textarea>
+    <label for="instructions">Instructions</label>
+
+    @if(instructions?.hasError('required') && (instructions?.touched ||
+    instructions?.dirty)){
+    <span class="text-danger">* Instructions is required.</span>
+    } @else if(instructions?.hasError('minlength') && (instructions?.touched ||
+    instructions?.dirty)){
+    <span class="text-danger">* Enter at least 3 characters.</span>
+    }
+  </div>
+
+  <div class="form-floating mb-5">
+    <input
+      type="text"
+      class="form-control"
+      id="imageUrl"
+      placeholder="http"
+      formControlName="imageUrl"
+    />
+    <label for="imageUrl">Image URL</label>
+
+    @if(imageUrl?.hasError('required') && (imageUrl?.touched ||
+    imageUrl?.dirty)){
+    <span class="text-danger">* Image URL is required.</span>
+    } @else if(imageUrl?.hasError('invalidUrl') && (imageUrl?.touched ||
+    imageUrl?.dirty)){
+    <span class="text-danger">* Enter a valid URL.</span>
+    }
+  </div>
+
+  <section formArrayName="ingredients">
+    <h4>Ingredients ({{ ingredients.controls.length }})</h4>
+
+    @for(ingredient of ingredients.controls; track ingredient){
+    <!-- There is a reason for this, trust me -->
+
+    <div class="mb-3">
+      <div class="input-group">
+        <input
+          type="text"
+          class="form-control"
+          [id]="'ingredient-' + $index"
+          placeholder="Milk"
+          [formControlName]="$index"
+        />
+
+        @if(ingredients.controls.length !== 1){
+
+        <button
+          class="btn btn-danger"
+          type="button"
+          (click)="deleteIngredient($index)"
+        >
+          Delete
+        </button>
+        }
+      </div>
+
+      @if(ingredients.get($index.toString())?.hasError('required') &&
+      (ingredients.get($index.toString())?.touched ||
+      ingredients.get($index.toString())?.dirty)){
+      <span class="text-danger">* Ingredient is required.</span>
+      } @else if(ingredients.get($index.toString())?.hasError('minlength') &&
+      (ingredients.get($index.toString())?.touched ||
+      ingredients.get($index.toString())?.dirty)){
+      <span class="text-danger">* Enter at least 3 characters.</span>
+      }
+    </div>
+
+    }
+    <button type="button" class="btn btn-primary" (click)="addIngredient()">
+      Add another ingredient
+    </button>
+  </section>
+
+  <div [ngClass]="{ 'd-flex': isEditing(), 'gap-3': isEditing() }">
+    <button
+      type="submit"
+      class="btn btn-primary mt-3 w-100"
+      [disabled]="isEditing() && isFormUnchanged()"
+    >
+      {{ isEditing() ? "Update the " : "Add new " }}
+      recipe
+    </button>
+
+    @if(isEditing()){
+
+    <button
+      type="submit"
+      class="btn btn-danger mt-3 w-100"
+      (click)="deleteRecipe()"
+    >
+      Delete
+    </button>
+    }
+  </div>
+</form>

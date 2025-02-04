@@ -1,0 +1,24 @@
+<div class="card mb-3">
+  <div class="img-box">
+    <img
+      [src]="recipe().imageUrl"
+      class="card-img-top"
+      [alt]="'Image of ' + recipe().title"
+    />
+  </div>
+  <div class="card-body">
+    <h5 class="card-title">{{ recipe().title | titlecase }}</h5>
+    <p class="card-text">
+      <!-- make shorter -->
+      {{ recipe().description }}
+    </p>
+    <div class="d-flex mb-3 text-secondary">
+      <span>
+        {{ recipe().ingredients.length | i18nPlural : ingredientQuantity }}
+      </span>
+    </div>
+    <a [routerLink]="['/recipe', recipe().id]" class="btn btn-primary"
+      >See more details</a
+    >
+  </div>
+</div>

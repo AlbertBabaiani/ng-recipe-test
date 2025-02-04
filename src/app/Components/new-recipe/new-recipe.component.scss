@@ -1,0 +1,12 @@
+input,
+textarea {
+  &.ng-invalid.ng-touched:not(:focus) {
+    border-color: red;
+  }
+}
+
+textarea {
+  min-height: 6rem !important;
+  max-height: 12rem !important;
+  overflow-y: auto;
+}

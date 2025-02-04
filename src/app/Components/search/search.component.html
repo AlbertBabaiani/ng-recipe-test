@@ -1,0 +1,32 @@
+<form (ngSubmit)="search()">
+  <div class="input-group">
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Recipe or Ingredient name"
+      [(ngModel)]="search_value"
+      name="search"
+    />
+
+    <button
+      class="btn btn-primary"
+      type="submit"
+      [disabled]="!search_value()?.trim()?.length"
+    >
+      Search
+    </button>
+  </div>
+
+  <div>
+    <button
+      type="reset"
+      class="btn btn-outline-secondary my-3"
+      routerLink="./"
+      [queryParams]="{ search: null }"
+      [queryParamsHandling]="'merge'"
+      (click)="reset()"
+    >
+      Reset
+    </button>
+  </div>
+</form>

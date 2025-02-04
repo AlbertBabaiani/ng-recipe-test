@@ -1,0 +1,56 @@
+<div class="my-3 d-flex gap-3">
+  <a class="btn btn-outline-primary" routerLink="">Back</a>
+
+  <a [routerLink]="['edit']" class="btn btn-primary px-5">Edit</a>
+</div>
+
+<div class="row mb-3 gy-5">
+  <div class="col-sm-6 col-12 px-2 pe-sm-3 pe-md-3">
+    <div class="img-box">
+      <img
+        [src]="recipe()?.imageUrl"
+        [alt]="'Image of ' + recipe()?.title"
+        class="rounded-3"
+      />
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-12 px-2 ps-sm-3 pe-md-3">
+    <h1 class="m4-3 display-2">
+      {{ recipe()?.title }}
+    </h1>
+
+    <hr />
+
+    <section class="mb-4">
+      <h2>Description</h2>
+
+      <p>
+        {{ recipe()?.description }}
+      </p>
+    </section>
+
+    <section class="mb-4">
+      <h2>Instuctions</h2>
+
+      <p>
+        {{ recipe()?.instructions }}
+      </p>
+    </section>
+
+    <section>
+      <h2>Ingredients</h2>
+
+      <ul class="list-group list-group-flush">
+        @for(ingridient of recipe()?.ingredients; track $index){
+        <li class="list-group-item">
+          {{ ingridient }}
+        </li>
+
+        } @empty {
+        <p>No ingredients</p>
+        }
+      </ul>
+    </section>
+  </div>
+</div>
