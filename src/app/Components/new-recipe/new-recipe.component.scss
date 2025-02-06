@@ -10,3 +10,11 @@ textarea {
   max-height: 12rem !important;
   overflow-y: auto;
 }
+
+.preview-image {
+  img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+}

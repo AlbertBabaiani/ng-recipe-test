@@ -13,10 +13,29 @@ export function urlValidator(): ValidatorFn {
   };
 }
 
-export function nonEmptyStringValidator(): ValidatorFn {
+export function customMinLengthValidator(minLength: number = 3): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
-    if (!control.value || control.value.trim().length === 0) {
-      return { nonEmptyString: true };
+    if (!control.value || control.value.trim().length < minLength) {
+      return {
+        minLength: {
+          requiredLength: minLength,
+          actualLength: control.value.length,
+        },
+      };
+    }
+    return null;
+  };
+}
+
+export function customMaxLengthValidator(maxLength: number = 40): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (control.value && control.value.trim().length > maxLength) {
+      return {
+        maxLength: {
+          requiredLength: maxLength,
+          actualLength: control.value.length,
+        },
+      };
     }
     return null;
   };

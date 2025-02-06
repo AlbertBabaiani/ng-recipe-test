@@ -1,0 +1,32 @@
+$bootstrap-primary-color: #0d6efd;
+
+.overlay {
+  backdrop-filter: blur(5px);
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.4);
+
+  .spinner-box {
+    width: clamp(10rem, 12%, 18rem);
+    aspect-ratio: 1;
+    animation: spinning 1s linear 0s infinite;
+  }
+
+  .spinner {
+    width: 100%;
+    height: 100%;
+    border: 1.4em solid rgba(235, 231, 231, 0.6);
+    border-top-color: $bootstrap-primary-color;
+    border-radius: 50%;
+    animation: spinning 1s linear infinite;
+  }
+}
+
+@keyframes spinning {
+  to {
+    transform: rotate(360deg);
+  }
+}

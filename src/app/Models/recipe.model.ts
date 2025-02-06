@@ -5,4 +5,5 @@ export interface IRecipe {
   ingredients: string[];
   instructions: string;
   imageUrl: string;
+  favourite: boolean;
 }

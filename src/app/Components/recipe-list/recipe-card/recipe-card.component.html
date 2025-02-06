@@ -1,16 +1,28 @@
-<div class="card mb-3">
+<div class="card mb-3 position-relative">
+  <button
+    class="favourite-icon"
+    type="button"
+    (click)="updateRecipeFavouriteStatus()"
+  >
+    <i
+      class="bi"
+      [ngClass]="['bi-heart' + (favouriteStatus() ? '-fill' : '')]"
+    ></i>
+  </button>
+
   <div class="img-box">
     <img
-      [src]="recipe().imageUrl"
+      [src]="img"
+      (error)="onError()"
       class="card-img-top"
       [alt]="'Image of ' + recipe().title"
     />
   </div>
+
   <div class="card-body">
-    <h5 class="card-title">{{ recipe().title | titlecase }}</h5>
+    <h5 class="card-title">{{ recipe().title | titlecase | truncate : 20 }}</h5>
     <p class="card-text">
-      <!-- make shorter -->
-      {{ recipe().description }}
+      {{ recipe().description | truncate : 30 }}
     </p>
     <div class="d-flex mb-3 text-secondary">
       <span>

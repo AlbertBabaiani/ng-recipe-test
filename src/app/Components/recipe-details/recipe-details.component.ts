@@ -4,11 +4,12 @@ import { Subscription, switchMap } from 'rxjs';
 import { IRecipe } from '../../Models/recipe.model';
 import { RecipeListService } from '../../Services/recipe-list.service';
 import { Title } from '@angular/platform-browser';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-recipe-details',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, NgClass],
   templateUrl: './recipe-details.component.html',
   styleUrl: './recipe-details.component.scss',
 })
@@ -50,6 +51,30 @@ export class RecipeDetailsComponent implements OnInit, OnDestroy {
           this.router.navigate(['/error']);
         },
       });
+  }
+
+  onError() {
+    const currentRecipe = this.recipe();
+    if (currentRecipe) {
+      this.recipe.set({
+        ...currentRecipe,
+        imageUrl: 'images/no-image.jpg',
+      });
+    }
+  }
+
+  updateRecipeFavouriteStatus() {
+    const currentRecipe = this.recipe();
+    if (currentRecipe) {
+      this.recipe.set({
+        ...currentRecipe,
+        favourite: !currentRecipe.favourite,
+      });
+      this.recipeListService.updateFavourite(
+        currentRecipe.id,
+        !currentRecipe.favourite
+      );
+    }
   }
 
   ngOnDestroy(): void {

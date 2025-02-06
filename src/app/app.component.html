@@ -1,5 +1,9 @@
 <app-navbar />
 
+@if(isLoading()){
+<app-loader />
+}
+
 <div class="container my-3">
   <router-outlet />
 </div>

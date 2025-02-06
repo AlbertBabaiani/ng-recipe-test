@@ -17,16 +17,29 @@
     </button>
   </div>
 
-  <div>
+  <div class="d-flex gap-3 my-3">
     <button
       type="reset"
-      class="btn btn-outline-secondary my-3"
+      class="btn btn-outline-secondary"
       routerLink="./"
       [queryParams]="{ search: null }"
-      [queryParamsHandling]="'merge'"
       (click)="reset()"
     >
       Reset
     </button>
+
+    <div>
+      <input
+        type="checkbox"
+        class="btn-check"
+        id="favourites-btn"
+        [(ngModel)]="favourite_status"
+        (ngModelChange)="favouriteSearching()"
+        name="favourites"
+      />
+      <label class="btn btn-outline-secondary" for="favourites-btn"
+        >Search by favourites
+      </label>
+    </div>
   </div>
 </form>

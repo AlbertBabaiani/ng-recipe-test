@@ -17,4 +17,5 @@ export class RecipeListComponent {
   searched_value = input<string>('');
 
   list: Signal<IRecipe[]> = this.recipeListService.list;
+  list_length: Signal<Number> = this.recipeListService.list_length;
 }

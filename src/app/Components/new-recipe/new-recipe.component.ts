@@ -2,21 +2,33 @@ import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import {
   FormArray,
   FormBuilder,
+  FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { urlValidator } from './Validators/validator.validator';
+import {
+  customMaxLengthValidator,
+  customMinLengthValidator,
+  urlValidator,
+} from './Validators/validator.validator';
 import { RecipeListService } from '../../Services/recipe-list.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IRecipe } from '../../Models/recipe.model';
 import { NgClass } from '@angular/common';
 import { Subscription } from 'rxjs';
+import { ValidationMessageComponent } from './validation-message/validation-message.component';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-new-recipe',
   standalone: true,
-  imports: [ReactiveFormsModule, NgClass, RouterLink],
+  imports: [
+    ReactiveFormsModule,
+    NgClass,
+    RouterLink,
+    ValidationMessageComponent,
+  ],
   templateUrl: './new-recipe.component.html',
   styleUrl: './new-recipe.component.scss',
 })
@@ -26,16 +38,21 @@ export class NewRecipeComponent implements OnInit, OnDestroy {
   private activatedRoute = inject(ActivatedRoute);
   private activatedRouteSubscription!: Subscription;
 
+  private title_service = inject(Title);
+
+  private recipeListService = inject(RecipeListService);
+  private fb = inject(FormBuilder);
+
+  form!: FormGroup;
+  private initial_form!: IRecipe;
+  imageUrl_backup = signal<string>('');
+
   private id: string = '';
+
+  isSubmitted = signal<boolean>(false);
 
   private _isEditing = signal<boolean>(false);
   readonly isEditing = this._isEditing.asReadonly();
-
-  private recipeListService = inject(RecipeListService);
-
-  form!: FormGroup;
-  private fb = inject(FormBuilder);
-  private initial_form!: IRecipe;
 
   private canBeSubmitted = false;
 
@@ -52,6 +69,7 @@ export class NewRecipeComponent implements OnInit, OnDestroy {
   }
 
   private createEmptyRecipe(): IRecipe {
+    this.imageUrl_backup.set('');
     return {
       id: '',
       title: '',
@@ -59,14 +77,15 @@ export class NewRecipeComponent implements OnInit, OnDestroy {
       imageUrl: '',
       instructions: '',
       ingredients: [],
+      favourite: false,
     };
   }
 
   private getTextValidators(min: number, max: number) {
     return [
       Validators.required,
-      Validators.minLength(min),
-      Validators.maxLength(max),
+      customMaxLengthValidator(max),
+      customMinLengthValidator(min),
     ];
   }
 
@@ -74,34 +93,37 @@ export class NewRecipeComponent implements OnInit, OnDestroy {
     this.initial_form = this.createEmptyRecipe();
     this.form = this.fb.group(
       {
-        title: ['', this.getTextValidators(3, 20)],
+        favourite: [false, { updateOn: 'change' }],
+        title: ['', this.getTextValidators(3, 40)],
         description: ['', this.getTextValidators(3, 200)],
-        ingredients: this.fb.array([
-          this.fb.control('', this.getTextValidators(3, 20)),
-        ]),
+        ingredients: this.fb.array([]),
         instructions: ['', this.getTextValidators(3, 200)],
         imageUrl: [
           '',
-          [Validators.required, Validators.minLength(3), urlValidator()],
+          {
+            validators: [
+              Validators.required,
+              customMinLengthValidator(3),
+              urlValidator(),
+            ],
+            updateOn: 'change',
+          },
         ],
       },
       { updateOn: 'blur' }
     );
+
+    this.addIngredient();
   }
 
   private setInitialValues(recipe: IRecipe) {
-    this.form.patchValue({
-      title: recipe.title,
-      description: recipe.description,
-      instructions: recipe.instructions,
-      imageUrl: recipe.imageUrl,
-    });
+    this.initial_form = recipe;
+    this.form.patchValue(recipe);
+    this.imageUrl_backup.set(recipe.imageUrl);
 
     this.ingredients.clear();
 
-    recipe.ingredients.forEach((ingredient) => {
-      this.addIngredient(ingredient);
-    });
+    recipe.ingredients.forEach((ingredient) => this.addIngredient(ingredient));
   }
 
   private subscribeToRouteParams(): void {
@@ -118,8 +140,8 @@ export class NewRecipeComponent implements OnInit, OnDestroy {
               return;
             }
             this.id = recipe.id;
+            this.title_service.setTitle(`Editing - ${recipe.title}`);
             this.setInitialValues(recipe);
-            this.initial_form = recipe;
           },
         });
       },
@@ -142,13 +164,25 @@ export class NewRecipeComponent implements OnInit, OnDestroy {
     return this.form.get('imageUrl');
   }
 
+  get favourite() {
+    return this.form.get('favourite') as FormControl<boolean>;
+  }
+
+  onImageError() {
+    this.imageUrl?.setErrors({
+      invalidUrl: true,
+    });
+    this.imageUrl?.markAsTouched();
+    this.imageUrl_backup.set('images/no-image.jpg');
+  }
+
   get ingredients() {
     return this.form.get('ingredients') as FormArray;
   }
 
   addIngredient(value: string = ''): void {
     this.ingredients.push(
-      this.fb.control(value, this.getTextValidators(3, 20))
+      this.fb.control(value, this.getTextValidators(3, 40))
     );
   }
 
@@ -161,9 +195,23 @@ export class NewRecipeComponent implements OnInit, OnDestroy {
   }
 
   isFormUnchanged(): boolean {
+    const sortObject = (obj: IRecipe) =>
+      JSON.stringify(
+        Object.keys(obj)
+          .sort()
+          .reduce((acc: { [key in keyof IRecipe]: any }, key: string) => {
+            const value = obj[key as keyof IRecipe];
+
+            acc[key as keyof IRecipe] = Array.isArray(value)
+              ? value.sort()
+              : value;
+            return acc;
+          }, {} as { [key in keyof IRecipe]: any })
+      );
+
     return (
-      JSON.stringify({ id: this.id, ...this.form.value }) ===
-      JSON.stringify(this.initial_form)
+      sortObject({ id: this.id, ...this.form.value }) ===
+      sortObject(this.initial_form)
     );
   }
 
@@ -177,22 +225,36 @@ export class NewRecipeComponent implements OnInit, OnDestroy {
     });
   }
 
-  addNewRecipe() {
-    this.markAllAsTouched();
+  private trimFormValues(): void {
+    Object.keys(this.form.controls).forEach((key) => {
+      const control = this.form.get(key);
 
-    if (this.isEditing()) {
-      if (this.isFormUnchanged()) return;
-
-      this.canBeSubmitted = true;
-      this.updateRecipe();
-    } else {
-      if (this.form.valid) {
-        this.canBeSubmitted = true;
-        this.recipeListService.addNewRecipe({ ...this.form.value, id: 0 });
-      } else {
-        console.log('Form is invalid');
+      if (control && typeof control.value === 'string') {
+        control.setValue(control.value.trim());
+      } else if (control instanceof FormArray) {
+        control.controls.forEach((formControl) => {
+          if (typeof formControl.value === 'string') {
+            formControl.setValue(formControl.value.trim());
+          }
+        });
       }
-    }
+    });
+  }
+
+  submitForm() {
+    this.markAllAsTouched();
+    this.isSubmitted.set(true);
+    this.scrollToTop();
+
+    if (this.form.invalid || (this.isEditing() && this.isFormUnchanged()))
+      return;
+
+    this.canBeSubmitted = true;
+    this.trimFormValues();
+
+    this.isEditing()
+      ? this.updateRecipe()
+      : this.recipeListService.addNewRecipe({ ...this.form.value, id: 0 });
   }
 
   private updateRecipe() {

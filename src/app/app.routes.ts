@@ -12,7 +12,7 @@ export const routes: Routes = [
   {
     path: 'recipe-list',
     component: HomeComponent,
-    title: 'Reciple list',
+    title: 'Recipe list',
   },
   {
     path: 'recipe/:id',
@@ -37,7 +37,7 @@ export const routes: Routes = [
         (c) => c.NewRecipeComponent
       ),
     canDeactivate: [guardsGuard],
-    title: 'New recipe',
+    title: 'Edit recipe',
   },
   {
     path: '**',

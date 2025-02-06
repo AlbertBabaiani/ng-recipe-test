@@ -1,0 +1,5 @@
+@if(control()?.invalid && (control()?.touched || control()?.dirty)){
+<span class="text-danger">
+  {{ errorMessage }}
+</span>
+}

@@ -1,6 +1,7 @@
 import { Component, inject, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-search',
@@ -13,6 +14,7 @@ export class SearchComponent {
   // Two words search
 
   private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
 
   search_value = signal<string>('');
 
@@ -20,9 +22,32 @@ export class SearchComponent {
     alias: 'search',
   });
 
+  favourite_status = signal<boolean>(false);
+
+  constructor() {
+    this.activatedRoute.queryParamMap.pipe(takeUntilDestroyed()).subscribe({
+      next: (query) => {
+        const favouritesParam = query.get('favourites');
+
+        if (favouritesParam !== null) {
+          const parsedFavourites = favouritesParam === 'true';
+          if (parsedFavourites) {
+            this.favourite_status.set(parsedFavourites);
+          } else {
+            this.router.navigate(['./'], {
+              queryParams: {
+                favourites: false,
+              },
+              queryParamsHandling: 'merge',
+            });
+          }
+        }
+      },
+    });
+  }
+
   search() {
     const formattedValue = this.search_value().toLocaleLowerCase().trim();
-    console.log(formattedValue);
 
     if (formattedValue) {
       // Additional
@@ -33,9 +58,18 @@ export class SearchComponent {
         },
         queryParamsHandling: 'merge',
       });
-      this.search_value_output.emit(this.search_value());
+      this.search_value_output.emit(formattedValue);
       this.search_value.set('');
     }
+  }
+
+  favouriteSearching() {
+    this.router.navigate(['./'], {
+      queryParams: {
+        favourites: this.favourite_status(),
+      },
+      queryParamsHandling: 'merge',
+    });
   }
 
   reset() {
