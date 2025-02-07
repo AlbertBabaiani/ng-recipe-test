@@ -1,8 +1,17 @@
-<app-navbar />
-
 @if(isLoading()){
 <app-loader />
 }
+
+<!--  -->
+
+@if(error_message()){
+<app-error-message
+  [error_message]="error_message()"
+  (error_messageChange)="removeErrorMessage($event)"
+/>
+}
+
+<app-navbar />
 
 <div class="container my-3">
   <router-outlet />

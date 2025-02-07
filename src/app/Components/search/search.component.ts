@@ -11,8 +11,6 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
   styleUrl: './search.component.scss',
 })
 export class SearchComponent {
-  // Two words search
-
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
 
@@ -50,8 +48,6 @@ export class SearchComponent {
     const formattedValue = this.search_value().toLocaleLowerCase().trim();
 
     if (formattedValue) {
-      // Additional
-
       this.router.navigate(['./'], {
         queryParams: {
           search: formattedValue,

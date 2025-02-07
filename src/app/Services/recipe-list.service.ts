@@ -30,8 +30,15 @@ export class RecipeListService {
   private _loading = signal<boolean>(true);
   readonly loading = this._loading.asReadonly();
 
+  private _errorMessage = signal<string | null>(null);
+  readonly errorMessage = this._errorMessage.asReadonly();
+
   private setLoadingState(state: boolean) {
     this._loading.set(state);
+  }
+
+  setErrorMessage(message: string | null) {
+    this._errorMessage.set(message);
   }
 
   constructor() {
@@ -58,12 +65,13 @@ export class RecipeListService {
 
         this.filterRecipes();
         this.setLoadingState(false);
-        return of(undefined); // Return an Observable that resolves with void
+        this.setErrorMessage(null);
+        return of(undefined);
       }),
-      catchError((err) => {
-        console.error('Error fetching data:', err);
+      catchError(() => {
+        this.setErrorMessage('Failed to fetch recipes. Please try again.');
         this.setLoadingState(false);
-        return of(undefined); // Return an empty Observable in case of error
+        return of(undefined);
       })
     );
   }
@@ -71,7 +79,6 @@ export class RecipeListService {
   private filterRecipes(): void {
     let filteredList = this._original_list;
 
-    // Apply search filter
     if (this.searched_value) {
       const searchLower = this.searched_value.toLowerCase();
       filteredList = filteredList.filter(
@@ -83,7 +90,6 @@ export class RecipeListService {
       );
     }
 
-    // Apply favorites filter
     if (this.showFavourites) {
       filteredList = filteredList.filter((recipe) => recipe.favourite);
     }
@@ -99,7 +105,7 @@ export class RecipeListService {
           (recipe: IRecipe) => recipe.id === id
         );
         this.setLoadingState(false);
-        return of(recipe); // Return the recipe as an Observable
+        return of(recipe);
       })
     );
   }
@@ -114,9 +120,10 @@ export class RecipeListService {
           this._original_list.push(data);
           this.router.navigate(['']);
           this.setLoadingState(false);
+          this.setErrorMessage(null);
         },
-        error: (err) => {
-          console.error('Error adding new recipe:', err);
+        error: () => {
+          this.setErrorMessage('Failed to add recipes. Please try again.');
           this.setLoadingState(false);
         },
       });
@@ -137,9 +144,10 @@ export class RecipeListService {
         );
         this.router.navigate(['']);
         this.setLoadingState(false);
+        this.setErrorMessage(null);
       },
-      error: (err) => {
-        console.error('Error updating recipe:', err);
+      error: () => {
+        this.setErrorMessage('Failed to update recipes. Please try again.');
         this.setLoadingState(false);
       },
     });
@@ -149,11 +157,13 @@ export class RecipeListService {
     this.httpClient
       .patch<IRecipe>(`${this.apiUrl}/${id}`, { favourite: favourite_status })
       .subscribe({
-        next: (updatedRecipe) => {
+        next: () => {
           this.fetchAllData().subscribe();
         },
-        error: (err) => {
-          console.error('Error updating recipe:', err);
+        error: () => {
+          this.setErrorMessage(
+            "Failed to update recipe's favourite status. Please try again."
+          );
         },
       });
   }
@@ -168,9 +178,10 @@ export class RecipeListService {
         );
         this.router.navigate(['']);
         this.setLoadingState(false);
+        this.setErrorMessage(null);
       },
       error: (err) => {
-        console.error('Error deleting recipe:', err);
+        this.setErrorMessage('Failed to delete recipes. Please try again.');
         this.setLoadingState(false);
       },
     });
