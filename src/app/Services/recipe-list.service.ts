@@ -146,18 +146,14 @@ export class RecipeListService {
   }
 
   updateFavourite(id: string, favourite_status: boolean) {
-    this.setLoadingState(true);
     this.httpClient
       .patch<IRecipe>(`${this.apiUrl}/${id}`, { favourite: favourite_status })
       .subscribe({
         next: (updatedRecipe) => {
-          this.setLoadingState(false);
-
           this.fetchAllData().subscribe();
         },
         error: (err) => {
           console.error('Error updating recipe:', err);
-          this.setLoadingState(false);
         },
       });
   }

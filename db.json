@@ -13,7 +13,7 @@
       ],
       "instructions": "Boil pasta. Fry bacon. Mix eggs & cheese. Combine everything.",
       "imageUrl": "https://plus.unsplash.com/premium_photo-1661771822467-e516ca075314?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8ZGlzaHxlbnwwfHwwfHx8MA%3D%3D",
-      "favourite": true
+      "favourite": false
     },
     {
       "id": "e6421cbe-ea0c-435a-9237-06fc042a9202",
@@ -24,11 +24,11 @@
       ],
       "instructions": "Spread sauce on dough. Add cheese. Bake at 220°C for 10-15 minutes.",
       "imageUrl": "https://images.unsplash.com/photo-1602253057119-44d745d9b860?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZGlzaHxlbnwwfHwwfHx8MA%3D%3D",
-      "favourite": true
+      "favourite": false
     },
     {
       "id": "8aebd59f-a33b-415b-8f61-49f6ebf855d3",
-      "favourite": false,
+      "favourite": true,
       "title": "Chicken Alfredo",
       "description": "Creamy pasta dish with grilled chicken.",
       "ingredients": [
@@ -54,7 +54,7 @@
       ],
       "instructions": "Chop vegetables. Stir-fry in pan with soy sauce and garlic.",
       "imageUrl": "https://images.unsplash.com/photo-1514326640560-7d063ef2aed5?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZGlzaHxlbnwwfHwwfHx8MA%3D%3D",
-      "favourite": false
+      "favourite": true
     },
     {
       "id": "8ffb7573-94a4-4a37-b236-74fe5b1dd65d",
